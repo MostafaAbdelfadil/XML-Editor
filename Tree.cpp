@@ -34,3 +34,19 @@ void Tree::print_attributes(node* n)
 			<< ": " << n->get_attributes()[i].value << "," << endl;
 	}
 }
+
+
+void Tree::print_minify(node* rootptr)
+{
+	if (rootptr->get_tag()[0] == '<')
+	{
+		out << rootptr->get_tag();
+		int size = rootptr->get_childs().size();
+		for (int i = 0; i < size; i++)
+			print_minify(rootptr->get_childs()[i]);
+
+		out << "</" + rootptr->get_name().substr(1);
+	}
+	else
+		out << rootptr->get_tag();
+}
