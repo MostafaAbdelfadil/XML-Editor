@@ -18,10 +18,9 @@ int spa(string s)
 	{
 		if (s[i] != sp)
 		{
-			if (i < 30)
+			
 				return i;
-			else
-				return -1;
+			
 		}
 	}
 	return -1;
@@ -42,7 +41,7 @@ void consistency(string FileLocIn, string FileOutCorrect, string FileOutError)
 	{
 
 		getline(in, f);
-		if (spa(f) == -1)
+		if (f == "")
 			continue;
 		if (spa(f) != 0 && u == 0)
 			u = 1;
@@ -202,7 +201,7 @@ void consistency(string FileLocIn, string FileOutCorrect, string FileOutError)
 										{
 											c = 1;
 											num.push(space1(ss.top()) + "</" + s.top());
-											error.push("</" + s.top());
+											error.push(space1(ss.top())+"</" + s.top());
 											s.pop();
 											ss.pop();
 
@@ -211,7 +210,7 @@ void consistency(string FileLocIn, string FileOutCorrect, string FileOutError)
 										else
 										{
 											num.push(space1(ss.top()) + "</" + s.top());
-											error.push(space1(ss.top()) + "</" + s.top() + "     <-------");
+											error.push(space1(ss.top()) + "     <-------");
 											s.pop();
 											ss.pop();
 
