@@ -3,6 +3,8 @@
 #include <stack>
 #include <queue>
 #include "Spaces.h"
+#include "Consistency.h"
+
 using namespace std;
 
 //Prettifying the file
@@ -17,8 +19,10 @@ void format(string FileLocIn, string FileLocOut) {
 	while (!in.eof())
 	{
 		getline(in, f);
+		int open_tag_second = f.find('<') + 1;
 		if (s.empty())
 		{
+			f = f.substr(spa(f));
 			num.push(f);
 			//f = f.substr(1);
 			int index1 = f.find(' ');
@@ -30,19 +34,21 @@ void format(string FileLocIn, string FileLocOut) {
 		}
 		else
 		{
-			if (f[0] != '<')
+			if (f[spa(f)] != '<')
 			{
+				f = f.substr(spa(f));
 				num.push(space(nu + 1) + f);
 			}
 			else {
 				int index = f.find('>');
 				if (index != f.length() - 1) {
+					f = f.substr(spa(f));
 					num.push(space(nu + 1) + f);
 				}
 				else {
 					string co = s.top(), ff;
-					ff = f.substr(2);
-					if (co == ff)
+					ff = f.substr(open_tag_second+1);
+					if (co == ff&&f.find('/')!=-1)
 					{
 
 						ff = space(nu) + "</" + ff;
@@ -52,6 +58,7 @@ void format(string FileLocIn, string FileLocOut) {
 					}
 					else {
 						nu++;
+						f = f.substr(spa(f));
 						num.push(space(nu) + f);
 						int index1 = f.find(' ');
 						if (index1 != -1)
