@@ -143,3 +143,208 @@ void Tree::print_minify(node* rootptr)
 	else
 		out << rootptr->get_tag();
 }
+
+void Tree::print_Json(node* rootptr)
+{
+	vector<vector<node*>> SimChilds;
+	if (rootptr->get_tag()[0] == '<')
+	{
+		if (rootptr->get_childs()[0]->get_tag()[0] == '<')
+			SimChilds = similar(rootptr->get_childs());
+	}
+
+	if (rootptr->get_parent() == NULL) //Tree root
+	{
+		out << "{" << endl;
+		out << space(rootptr->get_lvl() + 1) << rootptr->get_JsonName() << ":";
+		if (rootptr->get_childs().size() > 0 || rootptr->get_attributes().size() > 0)
+		{
+			out << " {" << endl;
+			print_attributes(rootptr);
+
+			for (int i = 0; i < SimChilds.size(); i++)
+			{
+				if (SimChilds[i].size() > 1)  //array json
+				{
+					for (int k = 0; k < SimChilds[i].size(); k++)  //similars marked
+					{
+						SimChilds[i][k]->set_Mark(true);
+					}
+					out << space(SimChilds[i][0]->get_lvl() + 1) << SimChilds[i][0]->get_JsonName() << ": [\n";
+					for (int j = 0; j < SimChilds[i].size(); j++)
+					{
+						if (SimChilds[i][j]->get_childs()[0]->get_tag()[0] != '<' && SimChilds[i][j]->get_attributes().size() == 0)
+						{
+							print_Json(SimChilds[i][j]);
+						}
+						else if (SimChilds[i][j]->get_childs()[0]->get_tag()[0] != '<' && SimChilds[i][j]->get_attributes().size() > 0)
+						{
+							print_Json(SimChilds[i][j]);
+						}
+						else
+						{
+							out << space(SimChilds[i][j]->get_lvl() + 2) << "{\n";
+							print_Json(SimChilds[i][j]);
+						}
+						if (SimChilds[i][j]->get_childs()[0]->get_tag()[0] != '<' /*&& SimChilds[i][j]->get_attributes().size() == 0*/)
+						{
+							if (j == SimChilds[i].size() - 1) //last element
+								out << "\n";
+							else
+								out << ",\n";
+						}
+						else
+						{
+							if (j == SimChilds[i].size() - 1)
+								out << space(SimChilds[i][j]->get_lvl() + 2) << "}\n";
+							else
+								out << space(SimChilds[i][j]->get_lvl() + 2) << "},\n";
+
+						}
+					}
+					if (SimChilds[i][0]->get_childs()[0]->get_tag()[0] != '<' && SimChilds[i][0]->get_attributes().size() == 0)
+						out << space(SimChilds[i][0]->get_lvl() + 1) << "]\n";
+					else
+						out << space(SimChilds[i][0]->get_lvl() + 1) << "]\n";
+				}
+				else  //normal json
+				{
+					print_Json(SimChilds[i][0]);
+				}
+			}
+			out << space(rootptr->get_lvl() + 1) << "}\n";
+		}
+		out << "}";
+	}
+
+	else if (rootptr->get_tag()[0] != '<') //Text node
+	{
+		if (rootptr->get_parent()->get_attributes().size() > 0)
+		{
+			out << space(rootptr->get_lvl() + 1) << text_tag << ": " << rootptr->get_JsonName() << endl;
+		}
+		else if (rootptr->get_parent()->get_Mark() == true)
+		{
+			out << space(rootptr->get_lvl() + 1) << rootptr->get_JsonName();
+		}
+		else
+		{
+			out << rootptr->get_JsonName() << ",\n";
+		}
+
+	}
+
+	else if (rootptr->get_childs()[0]->get_tag()[0] != '<') //leaf node
+	{
+		if (!rootptr->get_Mark())
+		{
+			out << space(rootptr->get_lvl() + 1) << rootptr->get_JsonName() << ":";
+		}
+		//rootptr->set_Mark(true);
+		if (rootptr->get_attributes().size() > 0)  //leaf node with attributes
+		{
+			if (!rootptr->get_Mark())
+			{
+				out << " {" << endl;
+			}
+			else  //leaf but array
+				out << space(rootptr->get_lvl() + 2) << "{\n";
+
+			print_attributes(rootptr);
+			for (int i = 0; i < rootptr->get_childs().size(); i++)
+			{
+				print_Json(rootptr->get_childs()[i]);
+			}
+			if (!rootptr->get_Mark())
+				out << space(rootptr->get_lvl() + 2) << "},\n";
+			else
+				out << space(rootptr->get_lvl() + 2) << "}";
+		}
+		else  //leaf node without attributes
+		{
+			out << " ";
+			for (int i = 0; i < rootptr->get_childs().size(); i++)
+			{
+				print_Json(rootptr->get_childs()[i]);
+			}
+		}
+
+	}
+	//node with tags childs 
+	else
+	{
+		if (!rootptr->get_Mark())
+		{
+			out << space(rootptr->get_lvl() + 1) << rootptr->get_JsonName() << ":";
+			if (rootptr->get_childs().size() > 0 || rootptr->get_attributes().size() > 0)
+			{
+				out << " {" << endl;
+				print_attributes(rootptr);
+			}
+		}
+		else
+			print_attributes(rootptr);
+
+		for (int i = 0; i < SimChilds.size(); i++)
+		{
+			if (SimChilds[i].size() > 1)  //array json
+			{
+				for (int k = 0; k < SimChilds[i].size(); k++)  //similars marked
+				{
+					SimChilds[i][k]->set_Mark(true);
+				}
+
+				out << space(SimChilds[i][0]->get_lvl() + 1) << SimChilds[i][0]->get_JsonName() << ": [\n";
+				for (int j = 0; j < SimChilds[i].size(); j++)
+				{
+					if (SimChilds[i][j]->get_childs()[0]->get_tag()[0] != '<' && SimChilds[i][j]->get_attributes().size() == 0)
+					{
+						print_Json(SimChilds[i][j]);
+					}
+					else if (SimChilds[i][j]->get_childs()[0]->get_tag()[0] != '<' && SimChilds[i][j]->get_attributes().size() > 0)
+					{
+						print_Json(SimChilds[i][j]);
+					}
+					else
+					{
+						out << space(SimChilds[i][j]->get_lvl() + 2) << "{\n";
+						print_Json(SimChilds[i][j]);
+					}
+					if (SimChilds[i][j]->get_childs()[0]->get_tag()[0] != '<' /*&& SimChilds[i][j]->get_attributes().size() == 0*/)
+					{
+						if (j == SimChilds[i].size() - 1) //last element
+							out << "\n";
+						else
+							out << ",\n";
+					}
+					else
+					{
+						if (j == SimChilds[i].size() - 1)
+							out << space(SimChilds[i][j]->get_lvl() + 2) << "}\n";
+						else
+							out << space(SimChilds[i][j]->get_lvl() + 2) << "},\n";
+
+					}
+				}
+
+				if (SimChilds[i][0]->get_childs()[0]->get_tag()[0] != '<' && SimChilds[i][0]->get_attributes().size() == 0)
+					out << space(SimChilds[i][0]->get_lvl() + 1) << "]\n";
+				else
+				{
+					if (i == SimChilds.size() - 1) //last array
+					{
+						out << space(SimChilds[i][0]->get_lvl() + 1) << "]\n";
+					}
+					else
+						out << space(SimChilds[i][0]->get_lvl() + 1) << "],\n";
+				}
+			}
+			else  //normal json
+			{
+				print_Json(SimChilds[i][0]);
+			}
+		}
+		if (!rootptr->get_Mark())
+			out << space(rootptr->get_lvl() + 1) << "}\n";
+	}
+}
