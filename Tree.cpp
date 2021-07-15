@@ -25,3 +25,12 @@ vector<vector<node*>> Tree::similar(vector<node*> same)
 		same[i]->set_Mark(false);
 	return a;
 }
+
+void Tree::print_attributes(node* n)
+{
+	for (int i = 0; i < n->get_attributes().size(); i++) //printing attributes
+	{
+		out << space(n->get_attributes()[i].level + 1) << n->get_attributes()[i].name
+			<< ": " << n->get_attributes()[i].value << "," << endl;
+	}
+}
