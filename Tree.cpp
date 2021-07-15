@@ -1,4 +1,12 @@
 #include "Tree.h"
+#include <stack>
+#include "Functions.h"
+#include "Spaces.h"
+
+string first_tag = "#text";
+string text_tag = '"' + first_tag + '"';
+
+
 vector<vector<node*>> Tree::similar(vector<node*> same)
 {
 	vector<vector<node*>> a;
@@ -34,7 +42,6 @@ void Tree::print_attributes(node* n)
 			<< ": " << n->get_attributes()[i].value << "," << endl;
 	}
 }
-
 
 void Tree::print_minify(node* rootptr)
 {
